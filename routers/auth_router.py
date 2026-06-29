@@ -1,24 +1,26 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
+from database.connection import get_db
+
 from services.auth_service import (
     register_user,
     login_user,
     get_all_users,
     get_all_login_logs,
-    update_user
+    update_user,
+    delete_user
 )
 
-from database.connection import get_db
+from schemas.user_schema import (
+    UserCreate,
+    UserResponse,
+    UserUpdate
+)
 
-from schemas.user_schema import UserCreate, UserResponse
-from schemas.login_schema import LoginRequest, LoginLogResponse
-from schemas.user_schema import UserCreate, UserResponse, UserUpdate
-
-from services.auth_service import (
-    register_user,
-    login_user,
-    get_all_users,
-    get_all_login_logs
+from schemas.login_schema import (
+    LoginRequest,
+    LoginLogResponse
 )
 
 router = APIRouter()
@@ -43,6 +45,7 @@ def users(db: Session = Depends(get_db)):
 def login_logs(db: Session = Depends(get_db)):
     return get_all_login_logs(db)
 
+
 @router.put("/update/{user_id}")
 def update(
     user_id: int,
@@ -50,3 +53,8 @@ def update(
     db: Session = Depends(get_db)
 ):
     return update_user(user_id, user_data, db)
+
+
+@router.delete("/delete/{user_id}")
+def delete(user_id: int, db: Session = Depends(get_db)):
+    return delete_user(user_id, db)
